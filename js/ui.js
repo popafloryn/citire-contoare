@@ -222,7 +222,8 @@
         <p>Notezi indexul de pe contor, aplicația îți arată consumul și cât vei plăti, cu TVA inclus. Datele rămân pe acest dispozitiv.</p>
         ${corrupt}
         <div class="actions">
-          <button class="btn btn--primary" data-action="import">Importă fișierul de date</button>
+          ${window.CC.seed ? `<button class="btn btn--primary" data-action="load-seed">Încarcă citirile salvate (${plural(window.CC.seed.readings.length, 'citire', 'citiri')})</button>` : ''}
+          <button class="btn${window.CC.seed ? '' : ' btn--primary'}" data-action="import">Importă un fișier</button>
           <button class="btn" data-action="start-fresh">Începe de la zero</button>
         </div>
         <p class="muted"><small>„Începe de la zero” creează clienții Eu și Mama, cu contoarele și tarifele din facturile din octombrie 2026.</small></p>
@@ -1111,6 +1112,17 @@
     render();
   }
 
+  // Citirile incluse în aplicație (js/seed.js), fără coduri de client sau serii de contor.
+  function loadBuiltInSeed() {
+    app.state = store.normalize(JSON.parse(JSON.stringify(window.CC.seed)));
+    store.save(app.state, { changed: false });
+    store.markSeedApplied();
+    app.ui.clientId = app.state.clients[0] ? app.state.clients[0].id : null;
+    saveUi();
+    app.openYears.clear();
+    store.requestPersist();
+  }
+
   // ---------- export / import ----------
 
   async function exportData() {
@@ -1206,6 +1218,12 @@
     },
     export: () => exportData(),
     import: () => $file.click(),
+    'load-seed': () => {
+      loadBuiltInSeed();
+      toast(`Încărcate: ${plural(app.state.readings.length, 'citire', 'citiri')}`);
+      if (location.hash && location.hash !== '#/') location.hash = '#/';
+      render();
+    },
     'start-fresh': () => {
       app.state = store.starterState();
       persist();
@@ -1262,7 +1280,19 @@
   });
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    // Când se instalează o versiune nouă, reîncarcă o dată ca să fie folosită imediat.
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController) return;
+      if ($sheet.open) { toast('Există o versiune nouă a aplicației. Redeschide-o ca să o folosești.'); return; }
+      location.reload();
+    });
     navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('Service worker neînregistrat', e));
+  }
+
+  // Prima deschidere pe un dispozitiv fără citiri: pornește cu citirile incluse.
+  if (window.CC.seed && !store.seedApplied() && !store.wasCorrupt() && (!app.state || app.state.readings.length === 0)) {
+    loadBuiltInSeed();
   }
 
   window.CC.ui = { importText, render, app };

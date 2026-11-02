@@ -1,6 +1,6 @@
 /* Service worker: păstrează aplicația în cache ca să meargă și fără internet.
    La fiecare modificare a fișierelor, crește VERSION ca dispozitivele să ia versiunea nouă. */
-const VERSION = 'contoare-v1';
+const VERSION = 'contoare-v2';
 const FILES = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const FILES = [
   './js/defaults.js',
   './js/calc.js',
   './js/store.js',
+  './js/seed.js',
   './js/ui.js',
   './icons/icon-180.png',
   './icons/icon-192.png',

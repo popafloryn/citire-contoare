@@ -4,6 +4,7 @@
 
   const KEY = 'citire-contoare';
   const UI_KEY = 'citire-contoare:ui';
+  const SEED_KEY = 'citire-contoare:seed-aplicat';
   const SCHEMA_VERSION = 1;
   const SOURCES = ['autocitire', 'distribuitor', 'estimat'];
 
@@ -155,6 +156,15 @@
     state.meta.dirtySince = null;
   }
 
+  // Citirile incluse în aplicație se încarcă automat o singură dată pe dispozitiv.
+  function seedApplied() {
+    try { return localStorage.getItem(SEED_KEY) === '1'; } catch (_) { return false; }
+  }
+
+  function markSeedApplied() {
+    try { localStorage.setItem(SEED_KEY, '1'); } catch (_) { /* preferință opțională */ }
+  }
+
   function serialize(state) {
     return JSON.stringify({ app: 'citire-contoare', exportedAt: nowIso(), ...state }, null, 2);
   }
@@ -209,7 +219,7 @@
   root.CC = root.CC || {};
   root.CC.store = {
     SCHEMA_VERSION, SOURCES, uid, nowIso, emptyState, starterState, makeMeter, normalize,
-    load, save, clear, loadUi, saveUi, markBackedUp, serialize, parseFile, merge, removeClient, removeMeter, upsert,
+    load, save, clear, loadUi, saveUi, markBackedUp, seedApplied, markSeedApplied, serialize, parseFile, merge, removeClient, removeMeter, upsert,
     requestPersist, wasCorrupt: () => corrupt,
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

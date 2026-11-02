@@ -6,6 +6,8 @@ Merge pe iPhone și pe Windows 11, fără App Store: e o pagină web care se ins
 
 ## Unde stau datele
 
+Aplicația include citirile din 2022 până în octombrie 2026 (`js/seed.js`, fără coduri de client sau serii de contor). La prima deschidere pe un dispozitiv fără date, le încarcă automat.
+
 Datele stau **doar în browserul dispozitivului** (localStorage). Nimic nu se trimite nicăieri. Pentru backup și pentru a muta datele între telefon și PC:
 
 1. Pe dispozitivul cu datele: **Setări → Exportă datele** (se creează un fișier `citiri-contoare-AAAA-LL-ZZ.json`).
@@ -37,6 +39,7 @@ styles.css            stiluri
 js/defaults.js        tipuri de contoare și tarife implicite
 js/calc.js            calcule (consum, cost, ferestre de transmitere)
 js/store.js           salvare locală, export/import
+js/seed.js            citirile inițiale (generate de tools/build-seed.mjs)
 js/ui.js              interfața
 sw.js                 funcționare offline
 manifest.webmanifest  instalare pe ecranul principal
